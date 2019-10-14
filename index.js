@@ -10,10 +10,34 @@
   const switchItems = document.getElementById('switch-items')
   const listDisplay = document.getElementById('list-display')
   const pictureDisplay = document.getElementById('picture-display')
+  const genresList = document.getElementById('genre-list')
   const ITEM_PER_PAGE = 12
+  const genreData = {
+    "1": "Action",
+    "2": "Adventure",
+    "3": "Animation",
+    "4": "Comedy",
+    "5": "Crime",
+    "6": "Documentary",
+    "7": "Drama",
+    "8": "Family",
+    "9": "Fantasy",
+    "10": "History",
+    "11": "Horror",
+    "12": "Music",
+    "13": "Mystery",
+    "14": "Romance",
+    "15": "Science Fiction",
+    "16": "TV Movie",
+    "17": "Thriller",
+    "18": "War",
+    "19": "Western"
+  }
+
 
   let paginationData = []
   let currentPage = 1
+  let value = null
   // One Page Data
   function getPageData(pageNum, data) {
     currentPage = pageNum
@@ -27,13 +51,40 @@
     }
   }
 
+  // genres list 
+  function genreList(genreData, value) {
+    let listContent = `<li class="list-group-item list-group-item-dark gener-title">Movies Genre</li>`
+    Object.keys(genreData).forEach(function (item) {
+      if (value === genreData[item]) {
+        listContent += `
+        <li class="list-group-item active" data-id="${item}">${genreData[item]}</li>
+      `
+      } else {
+        listContent += `
+        <li class="list-group-item" data-id="${item}">${genreData[item]}</li>
+      `
+      }
+    })
+    genresList.innerHTML = listContent
+  }
+
   // pagination
-  function getTotalPages(data) {
+  function getTotalPages(data, currentPage) {
     let totalPages = Math.ceil(data.length / ITEM_PER_PAGE) || 1
     let pageItemContent = ''
     for (let i = 0; i < totalPages; i++) {
+      if (Number(currentPage) === (i + 1)) {
+        pageItemContent += `
+          <li class="page-item active">
+        
+        `
+      } else {
+        pageItemContent += `
+          <li class="page-item">
+        `
+
+      }
       pageItemContent += `
-        <li class="page-item">
           <a class="page-link" href="javascript:;" data-page="${i + 1}">${i + 1}</a>
         </li>
       `
@@ -127,8 +178,9 @@
   // request API
   axios.get(INDEX_URL).then((response) => {
     data.push(...response.data.results)
-    getTotalPages(data)
+    getTotalPages(data, currentPage)
     getPageData(1, data)
+    genreList(genreData, value)
 
   }).catch((err) => console.log(err))
 
@@ -153,9 +205,9 @@
 
   // listen to pagination
   pagination.addEventListener('click', event => {
-    console.log(event.target.dataset.page)
     if (event.target.tagName === 'A') {
       getPageData(event.target.dataset.page)
+      getTotalPages(data, event.target.dataset.page)
     }
   })
 
@@ -170,6 +222,15 @@
       switchItems.classList.remove('list-mode')
       getPageData(currentPage)
     }
+  })
+
+  genresList.addEventListener('click', event => {
+    let results = []
+    event.preventDefault()
+    results = data.filter(movie => movie.genres.includes(+event.target.dataset.id))
+    getTotalPages(results)
+    getPageData(1, results)
+    genreList(genreData, event.target.innerHTML)
   })
 
 })()
