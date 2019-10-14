@@ -1,0 +1,13 @@
+.fa-th, .fa-bars {
+  font-size: 25px;
+  padding-left: 20px;
+  padding-top:  10px;
+}
+
+#switch-items {
+  text-align: center
+}
+
+.listButton {
+  text-align: right;
+}
